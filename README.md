@@ -45,10 +45,10 @@ kubectl describe pod web
 ```shell script
 kubectl run frontend --image bbilder/otus-hipster-frontend --restart=Never
 ```
-**kubectl run** - запустить ресурс
-**frontend** - с именем frontend
-**--image** - из образа bbilder/otus-hipster-frontend
-**--restart=Neverу** указываем на то, что в качестве ресурса запускаем 
+* **kubectl run** - запустить ресурс
+* **frontend** - с именем frontend
+* **--image** - из образа bbilder/otus-hipster-frontend
+* **--restart=Neverу** указываем на то, что в качестве ресурса запускаем 
 pod. [Подробности](https://kubernetes.io/docs/reference/kubectl/conventions/)  
 
 Один из распространенных кейсов использования ad-hoc режима - генерация 
@@ -57,8 +57,8 @@ pod. [Подробности](https://kubernetes.io/docs/reference/kubectl/conve
 kubectl run frontend --image bbilder/otus-hipster-frontend --restart=Never --dry-run -o yaml > frontend-pod.yaml
 ```
 Рассмотрим дополнительные ключи:  
-**--dry-run** - вывод информации о ресурсе без его реального создания
-**-o yaml** - форматирование вывода в YAML
+* **--dry-run** - вывод информации о ресурсе без его реального создания
+* **-o yaml** - форматирование вывода в YAML
 
 ## Проверка работы приложения
 Проверим работоспособность web сервера. Существует несколько способов получить 
