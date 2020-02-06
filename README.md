@@ -69,4 +69,84 @@ kubectl port-forward --address 0.0.0.0 pod/web 8000:8000
 ```
 В качестве альтернативы `kubectl port-forward` можно использовать удобную обертку [kube-forwarde](https://kube-forwarder.pixelpoint.io/).
 
+# kind
+## Установка kind
+Инструкции по установке доступны по [ссылке](https://kind.sigs.k8s.io/docs/user/quick-start).  
 
+## Работа с kind
+Запускаем создание кластера kind (`kind-config.yaml` - описание кластера)
+```shell script
+kind create cluster --config kind-config.yaml
+```
+# Контроллеры
+## ReplicationController и ReplicaSet
+* Следит за тем, чтобы число подов соответствовало заданному
+  * Умеет пересоздавать Podы при отказе узла (обычные "голые" поды умирают вместе с нодой)
+  * Умеет добавлять/удалять Podы не пересоздавая всю группу
+* **НЕ** проверяет соответствие запущенных Podов шаблону
+
+_**Важно**, ReplicaSet и ReplicationController не умеют рестартовать запущенные поды при обновлении шаблона, они только следят за их количеством.
+То есть при обновлении версии образа в манифесте, поды не будут рестартованны._  
+
+Увеличиваем количество реплик сервиса ad-hoc командой
+```shell script
+kubectl scale replicaset <pod_name> --replicas=3
+```
+Проверям, что ReplicaSet контроллер теперь управляет тремя репликами
+```shell script
+$ kubectl get rs <pod_name>
+NAME       DESIRED   CURRENT   READY   AGE
+frontend   3         3         3       5m45s
+```
+проверим образ, указанный в ReplicaSet (о форматировании вывода можно почитать в [документации](https://kubernetes.io/docs/reference/kubectl/jsonpath/))
+```shell script
+kubectl get replicaset frontend -o=jsonpath='{.spec.template.spec.containers[0].image}'
+```
+И образ из которого сейчас запущены pod, управляемые контроллером
+```shell script
+kubectl get pods -l app=frontend -o=jsonpath='{.items[0:3].spec.containers[0].image}'
+```
+## Deployment
+* Это контроллер контроллеров, управляющий ReplicaSets
+* Это "декларативный" способ развертывания
+* И рекомендованный способ запуска Podов (даже если нужна только одна реплика)
+
+[Стратегии](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy):  
+blue-green:
+* Развертывание трех новых pod
+* Удаление трех старых pod
+
+Reverse Rolling Update:
+* Удаление одного старого pod
+* Создание одного нового pod
+
+Вывод deployment
+```shell script
+kubectl get deployments
+```
+просмотр истории версий нашего Deployment
+```shell script
+kubectl rollout history deployment <pod_name>
+```
+Делаем откат на предыдущую версию deployment
+```shell script
+kubectl rollout undo deployment paymentservice --to-revision=1 | kubectl get rs -lapp=paymentservice -w
+```
+## Probes
+Проверка подов на готовность / доступность
+[Документация](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)  
+
+Для отслеживания статуса деплоя в CI/CD можно воспользоваться командой
+```shell script
+kubectl rollout status deployment/frontend
+```
+## DaemonSet
+Ещё один контроллер, отличительная особенность DaemonSet в том, что при его применении на каждом физическом хосте 
+создается по одному экземпляру pod, описанного в спецификации.  
+Типичные кейсы использования DaemonSet:
+* Сетевые плагины 
+* Утилиты для сбора и отправки логов (Fluent Bit, Fluentd, etc...)
+* Различные утилиты для мониторинга (Node Exporter, etc...)
+
+_В рамках ДЗ, где разбираемся с daemonset и node-exporter, перед применением node-exporter-daemonset.yaml надо обратить 
+и на [это](https://github.com/coreos/kube-prometheus/blob/master/manifests/node-exporter-serviceAccount.yaml)_
