@@ -7,6 +7,11 @@ spec:
   selector:
     matchLabels:
       app: web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 100%
   template:
     metadata:
       labels:
@@ -26,18 +31,12 @@ spec:
             - name: app
               mountPath: /app
       initContainers:
-        - name: html-gen
+        - name: init-web
           image: busybox:1.31.1
-          command:
-            ["sh", "-c", "wget -O- https://bit.ly/otus-k8s-index-gen | sh"]
+          command: ["sh", "-c", "wget -O- https://tinyurl.com/otus-k8s-intro | sh"]
           volumeMounts:
             - name: app
               mountPath: /app
       volumes:
         - name: app
           emptyDir: {}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0
-      maxSurge: 100%
