@@ -226,3 +226,33 @@ _В рамках ДЗ, где разбираемся с daemonset и node-export
 ```bash
 kubectl cluster-info dump | grep authorization-mode
 ```
+
+## Сетевое взаимодействие Pod, сервисы
+
+[Kubernetes Services and Iptables](https://msazure.club/kubernetes-services-and-iptables/)  
+
+### Создание Service || ClusterIP
+
+`ClusterIP` удобны в тех случаях, когда:
+
+* Нам не надо подключаться к конкретному поду сервиса
+* Нас устраивается случайное расределение подключений междуподами
+* Нам нужна стабильная точка подключения к сервису,независимая от подов, нод и DNS-имен
+
+Например:
+
+* Подключения клиентов к кластеру БД (multi-read) или хранилищу
+* Простейшая (не совсем, use IPVS, Luke) балансировка нагрузкивнутри кластера
+
+[Описание работы и настройки IPVS в K8s](https://github.com/kubernetes/kubernetes/blob/master/pkg/proxy/ipvs/README.md)
+
+#### Как посмотреть конфигурацию IPVS (в minikube)?
+
+Ведь в ВМ нет утилиты `ipvsadm`?  
+В ВМ выполним команду `toolbox` - в результате мы окажемся в контейнере с Fedora  
+Теперь установим `ipvsadm`:
+
+```bash
+dnf install -y ipvsadm && dnf clean all
+```
+
