@@ -109,6 +109,12 @@ kubectl port-forward --address 0.0.0.0 pod/web 8000:8000
 kind create cluster --config kind-config.yaml
 ```
 
+Удаление кластера
+
+```bash
+kind delete cluster
+```
+
 # Контроллеры
 
 ## ReplicationController и ReplicaSet
@@ -246,7 +252,7 @@ kubectl cluster-info dump | grep authorization-mode
 
 [Описание работы и настройки IPVS в K8s](https://github.com/kubernetes/kubernetes/blob/master/pkg/proxy/ipvs/README.md)
 
-#### Как посмотреть конфигурацию IPVS (в minikube)?
+#### Как посмотреть конфигурацию IPVS (в minikube)
 
 Ведь в ВМ нет утилиты `ipvsadm`?  
 В ВМ выполним команду `toolbox` - в результате мы окажемся в контейнере с Fedora  
@@ -254,4 +260,46 @@ kubectl cluster-info dump | grep authorization-mode
 
 ```bash
 dnf install -y ipvsadm && dnf clean all
+```
+
+## Volumes, Storages, Stateful приложения
+
+Проверка ресурсов
+
+```bash
+kubectl get statefulsets
+kubectl get pvc
+kubectl get pv
+kubectl describe <resource> <resource_name>
+```
+
+## Работа с секретами
+
+[Secrets](https://kubernetes.io/docs/concepts/configuration/secret/)
+
+Максимальный размер секрета: 1 МБ
+
+Проверка секретов:
+
+```bash
+kubectl get secrets
+```
+
+Вывод по больше информации о секрете
+
+```bash
+kubectl describe secrets/db-user-pass
+```
+
+Полный вывод секрета
+
+```bash
+kubectl get secret mysecret -o yaml
+```
+
+Кодирование / декодирование секрета
+
+```bash
+echo -n 'admin' | base64
+echo 'YWRtaW4=' | base64 --decode
 ```
