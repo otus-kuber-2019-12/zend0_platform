@@ -303,3 +303,60 @@ kubectl get secret mysecret -o yaml
 echo -n 'admin' | base64
 echo 'YWRtaW4=' | base64 --decode
 ```
+
+## Helm
+
+[Установка Helm v3](https://github.com/helm/helm#install)  
+
+По-умолчанию в Helm 3 не установлен репозиторий stable, устанавливаем
+
+```shell
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm repo list
+```
+
+Создание **release**:
+
+```shell
+helm install <chart_name> --name=<release_name> --namespace=<namespace>
+```
+
+Обновление **release**:
+
+```shell
+helm upgrade <release_name> <chart_name> --namespace=<namespace>
+```
+
+Создание или обновление **release**:
+
+```shell
+helm upgrade --install <release_name> <chart_name> --namespace=<namespace>
+```
+
+Добавление репозиториев
+
+```shell
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+```
+
+Удаляем **release**
+
+```shell
+helm delete frontend -n hipster-shop
+```
+
+### Kubecfg
+
+Проверим, что манифесты генерируются корректно
+
+```shell
+kubecfg show services.jsonnet
+```
+
+Установка манифестов
+
+```shell
+kubecfg update services.jsonnet --namespace hipster-shop
+```
+
+### Kustomize
