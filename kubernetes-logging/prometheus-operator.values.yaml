@@ -1,0 +1,24 @@
+commonLabels:
+  prometheus: default
+
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+prometheusOperator:
+  createCustomResource: false
+
+grafana:
+  adminPassword: MyPassword
+  ingress:
+    enabled: true
+    hosts:
+      - grafana.amebox.ru
+    annotations: { kubernetes.io/ingress.class: nginx }
+
+  additionalDataSources:
+    - name: loki
+      type: loki
+      url: http://loki:3100
